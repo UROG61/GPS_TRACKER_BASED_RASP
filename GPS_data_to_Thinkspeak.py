@@ -6,7 +6,7 @@ import time
 from GPS_API import *
 import serial
 
-ser = serial.Serial("/dev/serial0")  # Select your Serial Port
+ser = serial.Serial("/dev/serial0")  # Select Serial Port
 ser.baudrate = 9600  # Baud rate
 ser.timeout = 0.5
 sleep = 10 # how many seconds to sleep between posts to the channel
