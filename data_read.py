@@ -1,3 +1,4 @@
+# kütüphanelerin hepsi gerekli değildir.
 @author: Selim Altıntaş
 """
 
