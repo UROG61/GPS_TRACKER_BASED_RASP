@@ -1,14 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat May 15 23:07:21 2021
+
+@author: Selim Altıntaş
+"""
 
 import time
+import json
 import csv
 import urllib.request
 import os
 import sys
 import io
 import folium # pip install folium
-from folium import plugins
-from folium.plugins import search
 from folium.plugins import MiniMap
+from folium import plugins
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,6 +23,9 @@ from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QPu
 from PyQt5.QtWebEngineWidgets import QWebEngineView # pip install PyQtWebEngine
 from branca.element import Figure
 from PyQt5.QtCore import QTimer
+from folium.plugins import MarkerCluster
+MarkerCluster()
+
 
 #sleep = 2 # how many seconds to sleep between posts to the channel
 
@@ -30,45 +39,55 @@ class MyApp(QWidget):
         super().__init__()
         global map_obj,url
         self.setWindowTitle('Folium in PyQt Example')
-        self.window_width, self.window_height = 1600, 1200
+        self.window_width, self.window_height = 1600,800
         self.setMinimumSize(self.window_width, self.window_height)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
+        df = pd.read_csv("https://data.ibb.gov.tr/en/dataset/7456b10e-1128-48f7-82f5-5503d98bfb1b/resource/f4f56e58-5210-4f17-b852-effe356a890c/download/ispark_parking.csv")
+        locations = df[['LATITUDE', 'LONGITUDE']]
+        locationlist = locations.values.tolist()
+        len(locationlist)
         
-
         coordinate = (41.03659674666299, 28.83363416347736)
         map_obj = folium.Map(
-        	tiles='Stamen Terrain',
+        	tiles='cartodbpositron',
         	zoom_start=13,
         	location=coordinate
             )
-      
-      
-        folium.Marker(coordinate, popup='Seattle',icon=folium.Icon(color='red',prefix='glyphicon',icon='none')).add_to(map_obj)
-        folium.TileLayer('Stamen Terrain').add_to(map_obj)
+        
+        marker_cluster = MarkerCluster().add_to(map_obj)
+        for point in range(0, len(locationlist)):
+            folium.Marker(locationlist[point], popup=df['COUNTY_NAME'][point],icon=folium.Icon(color='green')).add_to(marker_cluster)
+        folium.Marker(coordinate, popup='Baslama',width=400,height=400,icon=folium.Icon(color='red',prefix='glyphicon',icon='none')).add_to(map_obj)
+        folium.TileLayer('cartodbpositron').add_to(map_obj) 
         folium.TileLayer('Stamen Toner').add_to(map_obj)
         folium.TileLayer('Stamen Water Color').add_to(map_obj)
-        folium.TileLayer('cartodbpositron').add_to(map_obj)
+        folium.TileLayer('Stamen Terrain').add_to(map_obj)
         folium.TileLayer('cartodbdark_matter').add_to(map_obj)
         folium.LayerControl().add_to(map_obj)
         
+        mini_map = plugins.MiniMap(toggle_display=True)
+        mini_map = MiniMap(tile_layer="cartodbpositron")
+        map_obj.add_child(mini_map)
+        map_obj
+        
         # save map data to data object
-        data = io.BytesIO()
-        map_obj.save(data, close_file=False)
+        self.data = io.BytesIO()
+        map_obj.save(self.data, close_file=False)
 
         
-        webView = QWebEngineView()
-        webView.setHtml(data.getvalue().decode())
-        layout.addWidget(webView)
+        self.webView = QWebEngineView()
+        self.webView.setHtml(self.data.getvalue().decode())
+        layout.addWidget(self.webView)
         
         
-        url = r'https://thingspeak.com/channels/1370649/feed.csv'
+        
         urllib.timeout = 0.5
-        print(url)
+        
         self.timer1 = QTimer()
         self.timer1.timeout.connect(self.updateLocation)
-        self.timer1.start(3000)
+        self.timer1.start(120000)
 
         
         
@@ -76,18 +95,19 @@ class MyApp(QWidget):
         global url,map_obj
         m1,m2 = self.read_cloud()
         map_obj.location=[m1,m2]
-        folium.Marker([m1,m2], popup='Seattle',icon=folium.Icon(color='red',prefix='glyphicon',icon='none')).add_to(map_obj)
+        folium.Marker([m1,m2], popup='Selim',icon=folium.Icon(icon="car", prefix="fa"),zoom_start=15).add_to(map_obj)
+        self.data.seek(0)
+        map_obj.save(self.data,close_file=False)
+        self.webView.setHtml(self.data.getvalue().decode())
         print("OK")
         
     def read_cloud(self):
         global url
-        urllib.request.urlretrieve(url, '/Users/Selim Altıntaş/Desktop/Bitirme/Gps_tracker_grad/GPS_Data/1.csv')
-        with open('/Users/Selim Altıntaş/Desktop/Bitirme/Gps_tracker_grad/GPS_Data/1.csv') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            for row in csv_reader:
-                msg1=row[2]
-                msg2=row[3]
-        os.remove('/Users/Selim Altıntaş/Desktop/Bitirme/Gps_tracker_grad/GPS_Data/1.csv')
+        url=urllib.request.urlopen("http://api.thingspeak.com/channels/1370649/feeds/last.json?api_key=ZG0YZXYKP9LOMMB9%22")
+        data = json.loads(url.read())
+        msg1 = data['field1']
+        msg2 = data['field2']
+
         print(msg1,msg2)
         return msg1,msg2
         
