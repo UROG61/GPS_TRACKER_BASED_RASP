@@ -1,6 +1,4 @@
-# This File consists of API calls for the GPS Parsing Functionality.This section parse the GPS values from the GPS Module.
-# pynmea2 is Python library for parsing the NMEA 0183 protocol (GPS). To get that thing : pip install pynmea2
-
+#raspberry pi içindir gerekli ayarlar yapılmalı
 import threading
 import pynmea2
 import sys
