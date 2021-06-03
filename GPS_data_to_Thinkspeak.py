@@ -1,5 +1,5 @@
-# This code is for python 3 and above 
-# You would need to install http.client with pip3 install http.client 
+# bu kod python 3 ve üzeri sürüm gerektirir
+# gerekli kütüphaneler kurulmalıdır.
 
 import http.client, urllib.request, urllib.parse, urllib.error
 import time
