@@ -12,7 +12,7 @@ def get_gps_data(serial, dmesg): # porttan gelen veriyi mesaj olarak tanımlıyo
     print("Initializing GPS\n") #
     while True: #
         strRead = serial.readline() #
-        if sys.version_info[0] == 3: # 
+        if sys.version_info[0] == 3: # python varsayılan olarak 3 sürümü olduğuna bakıyoruz.
             strRead = strRead.decode("utf-8","ignore") # veriyi decode ediyoruz ve okunabilir bir hale getiriyoruz
             if strRead[0:6] == '$GPGGA':   #
                 dmesg.msg = pynmea2.parse(strRead) #  okunan  str ın gpgga değeriyse bunu mesaj olarak bastrıyoruz
