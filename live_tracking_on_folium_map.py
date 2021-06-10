@@ -34,7 +34,7 @@ MarkerCluster()
 #     m1,m2 = read_cloud()
 #     time.sleep(sleep)
     
-class MyApp(QWidget):
+class MyApp(QWidget): # qwidget pencerenin template ini hazırlıyor. MYapp in içinde Qwidget ı düzenliyorum.
     def __init__(self):
         super().__init__()
         global map_obj,url
@@ -42,11 +42,11 @@ class MyApp(QWidget):
         self.window_width, self.window_height = 1600,800
         self.setMinimumSize(self.window_width, self.window_height)
 
-        layout = QVBoxLayout()
+        layout = QVBoxLayout() # widget ın içinde boxlayout oluşturuyorum ve aşağıda editliyorum
         self.setLayout(layout)
         df = pd.read_csv("https://data.ibb.gov.tr/en/dataset/7456b10e-1128-48f7-82f5-5503d98bfb1b/resource/f4f56e58-5210-4f17-b852-effe356a890c/download/ispark_parking.csv")
         locations = df[['LATITUDE', 'LONGITUDE']]
-        locationlist = locations.values.tolist()
+        locationlist = locations.values.tolist() # pandas a list olarak okuyabilmek için list olarak gelen veriyi çeviriyorum.
         len(locationlist)
         
         coordinate = (41.03659674666299, 28.83363416347736)
@@ -56,8 +56,8 @@ class MyApp(QWidget):
         	location=coordinate
             )
         
-        marker_cluster = MarkerCluster().add_to(map_obj)
-        for point in range(0, len(locationlist)):
+        marker_cluster = MarkerCluster().add_to(map_obj) 
+        for point in range(0, len(locationlist)): # location list in uzunluğu kadar folium da gösterilcek marker ın yerini  ve marker tipleri ve harita temaları ayarlıyorum
             folium.Marker(locationlist[point], popup=df['COUNTY_NAME'][point],icon=folium.Icon(color='green')).add_to(marker_cluster)
         folium.Marker(coordinate, popup='Baslama',width=400,height=400,icon=folium.Icon(color='red',prefix='glyphicon',icon='none')).add_to(map_obj)
         folium.TileLayer('cartodbpositron').add_to(map_obj) 
@@ -73,8 +73,8 @@ class MyApp(QWidget):
         map_obj
         
         # save map data to data object
-        self.data = io.BytesIO()
-        map_obj.save(self.data, close_file=False)
+        self.data = io.BytesIO() # bytes şeklinde veriyi oluşturuyorum sonra harita objesine bu sekilde kaydediyorum.
+        map_obj.save(self.data, close_file=False) # save ledikten sonra açık kalmaya devam etmesi için
 
         
         self.webView = QWebEngineView()
@@ -92,11 +92,11 @@ class MyApp(QWidget):
         
         
     def updateLocation(self):
-        global url,map_obj
+        global url,map_obj # global her fonksiyonda kullanabilmemiz için
         m1,m2 = self.read_cloud()
         map_obj.location=[m1,m2]
         folium.Marker([m1,m2], popup='Selim',icon=folium.Icon(icon="car", prefix="fa"),zoom_start=15).add_to(map_obj)
-        self.data.seek(0)
+        self.data.seek(0) 
         map_obj.save(self.data,close_file=False)
         self.webView.setHtml(self.data.getvalue().decode())
         print("OK")
@@ -109,22 +109,22 @@ class MyApp(QWidget):
         msg2 = data['field2']
 
         print(msg1,msg2)
-        return msg1,msg2
+        return msg1,msg2 # aldığım ve boylamı döndürüyor. bu olmasa fonksiyondan bilgilerin çıktısını başka fonksiyona alamayız.
         
         
 
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication(sys.argv) # application tanımlıyorum
     app.setStyleSheet('''
         QWidget {
             font-size: 35px;
         }
     ''')
     
-    myApp = MyApp()
-    myApp.show()
+    myApp = MyApp() # myapp i apllication ın içinde olusturuyorum
+    myApp.show() # application ın içinde gösteriyorum
 
     try:
         sys.exit(app.exec_())
